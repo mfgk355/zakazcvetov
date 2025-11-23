@@ -453,7 +453,6 @@
   let selectedWrap = wraps[0];
   let selectedRibbon = ribbons[0];
 
-  // Рендер каталога
   const list = document.getElementById('bouquet-list');
   bouquets.forEach(b => {
     const el = document.createElement('div');
@@ -610,7 +609,7 @@
     document.getElementById('cart-modal').classList.remove('open');
   });
 
-  // 🔥 ИСПРАВЛЕННЫЙ БЛОК: НАДЕЖНОЕ ОТКРЫТИЕ TELEGRAM
+  // 🔥 РАБОЧИЙ КОД ОФОРМЛЕНИЯ ЗАКАЗА — URL-SAFE BASE64
   document.getElementById('checkout-btn').addEventListener('click', (e) => {
     e.preventDefault();
     if (cart.length === 0) {
@@ -624,18 +623,22 @@
     };
 
     const jsonStr = JSON.stringify(orderData);
-    const b64 = btoa(unescape(encodeURIComponent(jsonStr)));
+    let b64 = btoa(unescape(encodeURIComponent(jsonStr)));
+    // URL-safe base64
+    b64 = b64
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_')
+      .replace(/=+$/, '');
     const payload = "order_" + b64;
+
     const telegramLink = `https://t.me/SMMHIK_BOT?start=${encodeURIComponent(payload)}`;
+    const webLink = `https://web.telegram.org/k/#@SMMHIK_BOT?start=${encodeURIComponent(payload)}`;
 
     // Попытка открыть в новой вкладке
     const win = window.open(telegramLink, '_blank');
-
-    // Если блокировка всплывающих окон — fallback
     if (!win || win.closed || typeof win.closed === 'undefined') {
-      if (confirm('Не удалось открыть Telegram автоматически.\n\nНажмите «ОК», чтобы перейти вручную.')) {
-        window.location.href = telegramLink;
-      }
+      // Fallback на веб-версию
+      window.location.href = webLink;
     }
   });
 
