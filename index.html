@@ -453,6 +453,7 @@
   let selectedWrap = wraps[0];
   let selectedRibbon = ribbons[0];
 
+  // === РЕНДЕР КАТАЛОГА ===
   const list = document.getElementById('bouquet-list');
   bouquets.forEach(b => {
     const el = document.createElement('div');
@@ -483,6 +484,7 @@
     grid.appendChild(div);
   });
 
+  // === ЛОГИКА КОРЗИНЫ ===
   document.addEventListener('click', e => {
     if (e.target.classList.contains('minus') || e.target.classList.contains('plus')) {
       const i = e.target.dataset.index;
@@ -610,23 +612,26 @@
     document.getElementById('cart-modal').classList.remove('open');
   });
 
-  // 🔥 ОФОРМЛЕНИЕ ЗАКАЗА — ПЕРЕДАЧА В ТЕЛЕГРАМ ЧЕРЕЗ BASE64
+  // 🔥 КЛЮЧЕВОЙ БЛОК: ПЕРЕДАЧА В TELEGRAM БЕЗ БЭКЕНДА
   document.getElementById('checkout-btn').addEventListener('click', (e) => {
     e.preventDefault();
-    if (cart.length === 0) return;
+    if (cart.length === 0) {
+      alert('Корзина пуста!');
+      return;
+    }
 
     const orderData = {
       items: cart,
       total: cart.reduce((s, i) => s + i.price, 0)
     };
 
-    // Кодируем в base64
+    // Кодируем в base64 (с поддержкой UTF-8)
     const jsonStr = JSON.stringify(orderData);
     const b64 = btoa(unescape(encodeURIComponent(jsonStr)));
     const payload = "order_" + b64;
 
     // Перенаправляем в Telegram
-    window.location.href = `https://t.me/SMMHIK_BOT=${encodeURIComponent(payload)}`;
+    window.location.href = `https://t.me/your_flower_bot?start=${encodeURIComponent(payload)}`;
   });
 
   renderCart();
