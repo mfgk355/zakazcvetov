@@ -484,7 +484,6 @@
     grid.appendChild(div);
   });
 
-  // Логика корзины
   document.addEventListener('click', e => {
     if (e.target.classList.contains('minus') || e.target.classList.contains('plus')) {
       const i = e.target.dataset.index;
@@ -611,7 +610,7 @@
     document.getElementById('cart-modal').classList.remove('open');
   });
 
-  // 🔥 ОФОРМЛЕНИЕ ЗАКАЗА → ПЕРЕДАЧА В @SMMHIK_BOT
+  // 🔥 ИСПРАВЛЕННЫЙ БЛОК: НАДЕЖНОЕ ОТКРЫТИЕ TELEGRAM
   document.getElementById('checkout-btn').addEventListener('click', (e) => {
     e.preventDefault();
     if (cart.length === 0) {
@@ -624,13 +623,20 @@
       total: cart.reduce((s, i) => s + i.price, 0)
     };
 
-    // Кодируем в base64 (поддержка UTF-8)
     const jsonStr = JSON.stringify(orderData);
     const b64 = btoa(unescape(encodeURIComponent(jsonStr)));
     const payload = "order_" + b64;
+    const telegramLink = `https://t.me/SMMHIK_BOT?start=${encodeURIComponent(payload)}`;
 
-    // Перенаправляем в ВАШЕГО бота
-    window.location.href = `https://t.me/SMMHIK_BOT?start=${encodeURIComponent(payload)}`;
+    // Попытка открыть в новой вкладке
+    const win = window.open(telegramLink, '_blank');
+
+    // Если блокировка всплывающих окон — fallback
+    if (!win || win.closed || typeof win.closed === 'undefined') {
+      if (confirm('Не удалось открыть Telegram автоматически.\n\nНажмите «ОК», чтобы перейти вручную.')) {
+        window.location.href = telegramLink;
+      }
+    }
   });
 
   renderCart();
